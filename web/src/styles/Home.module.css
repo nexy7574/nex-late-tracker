@@ -1,0 +1,10 @@
+
+.mainTable, .mainTable tr th, .mainTable tr td{
+  /*  Unlike regular CSS, you can't have dashes in definition names. */
+  border: 1px solid white;
+  border-collapse: collapse;
+}
+
+.mainTable tr th, .mainTable tr td {
+  padding: 8px
+}
