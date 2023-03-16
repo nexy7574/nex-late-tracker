@@ -6,8 +6,9 @@ import {useState} from "react";
 
 function renderLateEntryTable(entries, triggerRefreshFunction) {
     function deleteEntry(entry_id) {
+        const [day, month, year] = entry_id.split("/")
         fetch(
-            "/api/delete?id=" + entry_id,
+            `/api/lates/${year}/${month}/${day}`,
             {
                 method: "DELETE"
             }
@@ -77,7 +78,7 @@ function ShowAllEntries() {
   // When we're called, we still need to render something.
   // When setEntries() is called, the component will update.
   if(entries===null) {
-    fetch("/api/all")
+    fetch("/api/lates/all")
     .then(
         (response) => response.json().then((data)=>{setEntries(data)})
     )
@@ -92,19 +93,17 @@ function CreateNewEntry() {
   const [created, setCreated] = useState(null);
   function sendForm(event) {
     event.preventDefault();
-    let form_data = {
-      minutes_late: event.target[0].value,
-      excuse: event.target[1].value || null
-    }
+    // let form_data = {
+    //   minutes_late: event.target[0].value,
+    //   excuse: event.target[1].value || null
+    // }
+    let form_data = new FormData(event.target);
     event.target[2].enabled = false;
     fetch(
-        "/api/new",
+        "/api/lates",
         {
-            body: JSON.stringify(form_data),
+            body: form_data,
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            }
         }
     )
         .catch(
@@ -144,11 +143,11 @@ function CreateNewEntry() {
       <>
           {status}
           <form onSubmit={sendForm}>
-            <label htmlFor={"mins"}>Minutes late </label>
-            <input type={"number"} min={0} max={32400} id={"mins"} name={"mins"} required={true}/>
+            <label htmlFor={"minutes_late"}>Minutes late </label>
+            <input type={"number"} min={0} max={32400} id={"minutes_late"} name={"minutes_late"} required={true}/>
             <br/>
             <label htmlFor={"excuse"}>Excuse </label>
-            <input type={"text"} maxLength={1024} id={"excuse"} name={"mins"}/>
+            <input type={"text"} maxLength={1024} id={"excuse"} name={"excuse"}/>
             <br/>
             <input type={"submit"}/>
           </form>

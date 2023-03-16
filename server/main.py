@@ -1,5 +1,7 @@
 import datetime
 import sqlite3
+import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import uvicorn
@@ -17,7 +19,8 @@ sqlite3.row_factory = sqlite3.Row
 app = FastAPI(
     debug=True,
     title="Nex late tracker - API",
-    description="The API for the nex late tracker example."
+    description="The API for the nex late tracker example.",
+    root_path="/api"  # comment this out if you're not running behind the reverse proxy
 )
 if TYPE_CHECKING:
     # noinspection PyTypeHints
@@ -25,7 +28,9 @@ if TYPE_CHECKING:
 # Create the database connection.
 # this should be set in app.state to avoid creating a new connection for each request
 # Also, if you don't put it in app.state, you may get threading errors.
-app.state.db = sqlite3.connect("nex_late_tracker.db", check_same_thread=False)
+DB_DIR = os.getenv("DB_DIR", "./")
+DB_LOC = Path(DB_DIR) / "nex_late_tracker.db"
+app.state.db = sqlite3.connect(str(DB_LOC.absolute()), check_same_thread=False)
 
 
 class Cursor:
