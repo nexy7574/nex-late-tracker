@@ -1,11 +1,8 @@
 export default async function All(req, res) {
-    console.debug(req.body)
-    // let fd=req.body;
     let body = req.body;
     let fd = new FormData();
     fd.append("minutes_late", body.minutes_late);
     fd.append("excuse", body.excuse);
-    console.debug(fd);
     let response = await fetch(
         "http://localhost:6969/lates",
         {
@@ -16,7 +13,6 @@ export default async function All(req, res) {
             // }
         }
     );
-    console.debug(response);
     if(!response.ok) {
         res.status(response.status).json(await response.json());
         return

@@ -1,46 +1,54 @@
 import Head from 'next/head';
-import Image from 'next/image';
 import styles from '@/styles/Home.module.css';
 // note that while you can import individual styles like this, global.css will always be applied.
 import {useState} from "react";
 // Needed to store stateful information.
 
-function renderLateEntryTable(entries) {
+function renderLateEntryTable(entries, triggerRefreshFunction) {
     function deleteEntry(entry_id) {
-        
+        fetch(
+            "/api/delete?id=" + entry_id,
+            {
+                method: "DELETE"
+            }
+        ).then((response)=>{response.ok ? triggerRefreshFunction() : null})
     }
 
     return (
       <table className={styles.mainTable}>
-        <tr>
-          <th title={"dd/mm/yyyy"}>Date</th>
-          {/* title={"..."} just shows a tooltip when the text is hovered over. Semantics. */}
-          <th>Minutes Late</th>
-          <th>Excuse</th>
-        </tr>
-        {
-            // Now for the fun part - dynamically rendering!
-            // Here we will map entries (an object of {date: {key: value}}) into a table row per entry.
-            Object.keys(entries).map(
-                (key, _id) => {
-                  // _id is required so that nextJS builds the page properly
-                  // I'm not entirely sure why but don't question it.
-                  let entry = entries[key];
-                  return (
-                      <tr key={_id}>
-                        <td>{key}</td>
-                        <td>{entry.minutes_late}</td>
-                        <td>{entry.excuse || "No excuse"}</td>
-                          <td>
-                              <button>
-                                  delete
-                              </button>
-                          </td>
-                      </tr>
+        <thead>
+            <tr>
+                <th title={"dd/mm/yyyy"}>Date</th>
+                {/* title={"..."} just shows a tooltip when the text is hovered over. Semantics. */}
+                <th>Minutes Late</th>
+                <th>Excuse</th>
+            </tr>
+        </thead>
+          <tbody>
+              {
+                  // Now for the fun part - dynamically rendering!
+                  // Here we will map entries (an object of {date: {key: value}}) into a table row per entry.
+                  Object.keys(entries).map(
+                      (key, _id) => {
+                          // _id is required so that nextJS builds the page properly
+                          // I'm not entirely sure why but don't question it.
+                          let entry = entries[key];
+                          return (
+                              <tr key={_id}>
+                                  <td>{key}</td>
+                                  <td>{entry.minutes_late}</td>
+                                  <td>{entry.excuse || "No excuse"}</td>
+                                  <td>
+                                      <button onClick={()=>{deleteEntry(key)}}>
+                                          delete
+                                      </button>
+                                  </td>
+                              </tr>
+                          )
+                      }
                   )
-                }
-            )
-        }
+              }
+          </tbody>
       </table>
     )
   // This function will return a full HTML table, like below:
@@ -63,7 +71,7 @@ function renderLateEntryTable(entries) {
 }
 
 
-function ShowAllEntries(props) {
+function ShowAllEntries() {
   const [entries, setEntries] = useState(null);
   // We need the above in order to load the data.
   // When we're called, we still need to render something.
@@ -76,11 +84,11 @@ function ShowAllEntries(props) {
     return <p>Loading...</p>
   }
   else {
-    return renderLateEntryTable(entries);
+    return renderLateEntryTable(entries, () => {setEntries(null)});
   }
 }
 
-function CreateNewEntry(props) {
+function CreateNewEntry() {
   const [created, setCreated] = useState(null);
   function sendForm(event) {
     event.preventDefault();
@@ -113,7 +121,7 @@ function CreateNewEntry(props) {
         )
   }
 
-  let status = null;
+  let status;
   if(created === null) {
       status = null;
   }
@@ -171,7 +179,7 @@ export default function Home() {
           <h2>She&apos;s never on time anyway</h2>
           {/* You can't use characters like ', &, ", <, >, etc, without escaping. */}
         </div>
-        <div>
+        <div style={{display: "flex", justifyContent: "space-between", alignContent: "center", margin: "0 auto", width: "25%"}}>
           {/* Action button row */}
           <button onClick={()=>{setView("render_all")}}>
             Load all lates
