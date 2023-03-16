@@ -57,7 +57,8 @@ app.state.db.execute(
 
 
 @app.get("/lates/all")
-def get_lates(limit: int = -1):  # `limit` here becomes a query parameter (i.e. /lates/all?limit=10)
+def get_lates(limit: int = -1, newest_first: bool = True):
+    # `limit` here becomes a query parameter (i.e. /lates/all?limit=10)
     """Fetches ALL late entries."""
     parsed = {}  # this will become a dictionary of {string: data}
     with Cursor() as cursor:
@@ -70,6 +71,8 @@ def get_lates(limit: int = -1):  # `limit` here becomes a query parameter (i.e. 
                 "minutes_late": row["minutes_late"],
                 "excuse": row["excuse"]
             }
+    if newest_first:
+        parsed = dict(reversed(list(parsed.items())))
     return parsed  # returns the dictionary as JSON with response code 200 by default.
 
 
