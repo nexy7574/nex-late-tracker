@@ -29,10 +29,6 @@ RUN npm run build
 
 RUN npm run export
 
-# RUN mkdir -p /var/www/html/nex-late-tracker
-
-# RUN mv out/ /var/www/html/nex-late-tracker/
-
 COPY server /server
 
 COPY start.sh /start.sh
